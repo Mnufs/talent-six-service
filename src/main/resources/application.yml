@@ -1,0 +1,14 @@
+server:
+  port: 19999
+
+spring:
+  profiles:
+    active: "@profileActive@"
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+
+#日志配置
+logging:
+  level:
+    com.talent.six.mapper: DEBUG

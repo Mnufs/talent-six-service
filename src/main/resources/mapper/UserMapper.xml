@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.talent.six.mapper.UserMapper">
+
+    <select id="get" resultType="com.talent.six.model.UserVO">
+        SELECT
+          id,
+          userName,
+          nickName,
+          gender,
+          avatar
+        FROM user
+        WHERE status = '1'
+        <if test="userName != '' and userName != null">
+            and userName = #{userName}
+        </if>
+        <if test="password != '' and password != null">
+            and password = #{password}
+        </if>
+        <if test="id != 0 and id != null">
+            and id = #{id}
+        </if>
+    </select>
+
+    <select id="isExistByUserName" resultType="java.lang.Integer">
+        SELECT
+          count(id)
+        FROM user
+        WHERE userName = #{userName}
+    </select>
+
+    <insert id="save" useGeneratedKeys="true" keyProperty="id">
+        insert into user(
+            userName
+            ,nickName
+            ,password
+            ,status
+            ,avatar
+            ,createTime
+            ,modifyTime
+        )
+        values(
+            #{userName}
+            ,#{nickName}
+            ,#{password}
+            ,#{status}
+            ,#{avatar}
+            ,#{createTime}
+            ,#{modifyTime}
+        )
+    </insert>
+
+</mapper>

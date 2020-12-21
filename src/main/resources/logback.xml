@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration>
+    <property name="encoding" value="UTF-8"/>
+
+    <!-- 文件路径 -->
+    <property name="FILE_PATH" value="logs"/>
+
+    <!-- 文件名称 -->
+    <property name="FILE_NAME" value="talentSix"/>
+
+    <!-- 文件保留时间 -->
+    <property name="MAX_HISTORY" value="30"/>
+
+    <!--
+        日志输出格式：
+            %d表示日期时间，
+            %thread表示线程名，
+            %-5level：级别从左显示5个字符宽度
+            %logger{50} 表示logger名字最长50个字符，否则按照句点分割。
+            %msg：日志消息，
+            %n是换行符
+        -->
+    <property name="PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS}|^_^|[%t] %-5level %logger{50} %line - %msg%n"/>
+
+    <!-- 控制台输出 -->
+    <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+
+        <!-- 格式化日志输出 -->
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${PATTERN}</pattern>
+        </encoder>
+
+    </appender>
+
+    <!-- 随着时间的推移按时间生成日志文件 -->
+    <appender name="Info" class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+        <!-- 如果是 true，日志被追加到文件结尾，如果是 false，清空现存文件，默认是true。 -->
+        <Append>true</Append>
+
+        <!-- 格式化日志输出 -->
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${PATTERN}</pattern>
+        </encoder>
+
+        <!-- 根据时间规则生成文件 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 文件路径、名称格式 -->
+            <fileNamePattern>${FILE_PATH}/${FILE_NAME}.log.%d{yyyy-MM-dd}</fileNamePattern>>
+            <!-- 文件保留时间 -->
+            <maxHistory>${MAX_HISTORY}</maxHistory>
+        </rollingPolicy>
+
+    </appender>
+
+
+    <!-- 随着时间的推移按时间生成日志文件 -->
+    <appender name="Error" class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+        <!-- 如果是 true，日志被追加到文件结尾，如果是 false，清空现存文件，默认是true。 -->
+        <Append>true</Append>
+
+        <!-- 格式化日志输出 -->
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${PATTERN}</pattern>
+        </encoder>
+
+        <!-- 根据时间规则生成文件 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 文件路径、名称格式 -->
+            <fileNamePattern>${FILE_PATH}/${FILE_NAME}-error.log.%d{yyyy-MM-dd}</fileNamePattern>>
+            <!-- 文件保留时间 -->
+            <maxHistory>${MAX_HISTORY}</maxHistory>
+        </rollingPolicy>
+
+        <!-- 过滤器，过滤掉不是指定日志水平的日志 -->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <!-- 设置日志级别 -->
+            <level>ERROR</level>
+            <!-- 如果跟该日志水平相匹配，则接受 -->
+            <onMatch>ACCEPT</onMatch>
+            <!-- 如果跟该日志水平不匹配，则过滤掉 -->
+            <onMismatch>DENY</onMismatch>
+        </filter>
+
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="Console"/>
+        <appender-ref ref="Info"/>
+        <appender-ref ref="Error"/>
+    </root>
+</configuration>

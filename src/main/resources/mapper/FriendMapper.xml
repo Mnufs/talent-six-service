@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.talent.six.mapper.FriendMapper">
+
+    <resultMap id="friendRequestRecordVOResultMap" type="com.talent.six.model.FriendRequestRecordVO">
+        <result column="id" property="id"/>
+        <result column="userId" property="userId"/>
+        <result column="targetId" property="targetId"/>
+        <result column="nickName" property="nickName"/>
+        <result column="status" property="status"/>
+        <result column="message" property="message"/>
+        <result column="avatat" property="avatat"/>
+    </resultMap>
+
+    <resultMap id="friendVOResultMap" type="com.talent.six.model.FriendVO">
+        <result column="friendId" property="friendId"/>
+        <result column="nickName" property="friendName"/>
+        <result column="avatar" property="avatar"/>
+    </resultMap>
+
+    <!-- 是否是好友 -->
+    <select id="isFriend" resultType="java.lang.Integer">
+        SELECT
+          count(id)
+        FROM friend
+        WHERE status = '1'
+          and userId = #{userId}
+          and friendId = #{friendId}
+    </select>
+
+    <!-- 查询好友列表 -->
+    <select id="listFriend" resultMap="friendVOResultMap">
+        SELECT
+          f.friendId,
+          u.nickName,
+          u.avatar
+        FROM friend f
+        left join user u on u.id = f.friendId
+        WHERE f.status = '1'
+          and f.userId = #{userId}
+        order by u.userName asc
+    </select>
+
+    <!-- 查询好友申请记录 -->
+    <select id="listFriendRequestRecord" resultMap="friendRequestRecordVOResultMap">
+        SELECT
+          frr.id,
+          frr.userId,
+          u.nickName,
+          u.avatar,
+          frr.status,
+          frr.message
+        from friend_request_record frr
+        left join user u on u.id = frr.userId
+        where frr.targetId = #{userId}
+        order by frr.createTime desc
+    </select>
+
+    <!-- 保存好友申请记录 -->
+    <insert id="saveFriendRequestRecord" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+        insert into friend_request_record(
+          userId,
+          targetId,
+          status,
+          message,
+          createTime,
+          modifyTime
+        ) values (
+          #{userId},
+          #{targetId},
+          #{status},
+          #{message},
+          #{createTime},
+          #{modifyTime}
+        )
+    </insert>
+
+    <!-- 获取未读的好友申请数量 -->
+    <select id="getUnreadFriendRequestCount" resultType="java.lang.Integer">
+        SELECT
+          count(id)
+        from friend_request_record
+        where targetId = #{userId}
+          and status = '0'
+    </select>
+
+    <!-- 根据ID查询好友申请记录 -->
+    <select id="getFriendRequestRecordByID" resultType="com.talent.six.model.FriendRequestRecordVO">
+        SELECT
+          frr.id,
+          frr.userId,
+          frr.targetId,
+          u.nickName,
+          u.avatar,
+          frr.status,
+          frr.message
+        from friend_request_record frr
+        left join user u on u.id = frr.userId
+        where frr.id = #{id}
+    </select>
+
+    <!-- 修改好友申请状态 -->
+    <update id="updateFriendRequestStatus">
+        update friend_request_record
+        <set>
+            status = #{status},
+            modifyTime = #{modifyTime}
+        </set>
+        where id = #{id}
+          and targetId = #{targetId}
+          and status in('0','2')
+    </update>
+
+    <!-- 批量添加好友信息 -->
+    <insert id="batchSaveFriend">
+        insert into friend(
+          userId,
+          friendId,
+          status,
+          createTime,
+          modifyTime
+        ) values
+        <foreach collection="friendList" item="obj" separator=",">
+            (
+              #{obj.userId},
+              #{obj.friendId},
+              #{obj.status},
+              #{obj.createTime},
+              #{obj.modifyTime}
+            )
+        </foreach>
+    </insert>
+
+</mapper>
